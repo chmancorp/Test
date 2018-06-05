@@ -1,22 +1,42 @@
-﻿using BinnacleService.Data.Models;
+﻿using System;
+using BinnacleService.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace BinnacleService.Data.DataAccess
 {
-    public class BinnacleDbContext : DbContext
+    public partial class BinnacleDbContext : DbContext
     {
-        private DbSet<EntityTest> _entityTest;
+        public BinnacleDbContext()
+        {
+        }
 
-        public BinnacleDbContext(DbContextOptions<BinnacleDbContext> options) : base(options) { }
+        public BinnacleDbContext(DbContextOptions<BinnacleDbContext> options)
+            : base(options)
+        {
+        }
 
-        public DbSet<EntityTest> EntityTest { get => _entityTest; set => _entityTest = value; }
+        public virtual DbSet<Binnacle> Binnacle { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Server=PXL201701875\\SQLEXPRESS;Database=BinnacleDataBase;Trusted_Connection=True;");
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<EntityTest>().ToTable("EntityDemo");
+            modelBuilder.Entity<Binnacle>(entity =>
+            {
+                entity.Property(e => e.BinnacleId).HasDefaultValueSql("(newsequentialid())");
+
+                entity.Property(e => e.DateBinnacle).HasColumnType("date");
+
+                entity.Property(e => e.Details).HasMaxLength(100);
+            });
         }
     }
 }
